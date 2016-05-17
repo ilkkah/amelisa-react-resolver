@@ -1,13 +1,20 @@
 import React from "react";
-
+import { PropTypes } from 'react'
 import { context, resolve } from "react-resolver";
 
 @context("router")
 @resolve("submit", function({ router }) {
   return (action) => router.transitionTo(action);
 })
+@resolve("pim", function({ model }) {
+  return "moi";
+})
 export default class Home extends React.Component {
   static displayName = "Home"
+
+  static contextTypes = {
+    model: PropTypes.object.isRequired
+  }
 
   constructor(props) {
     super(props);

@@ -9,14 +9,23 @@ const CHILDREN = "ReactResolver.CHILDREN";
 const HAS_RESOLVED = "ReactResolver.HAS_RESOLVED";
 const IS_CLIENT = "ReactResolver.IS_CLIENT";
 const PAYLOAD = "__REACT_RESOLVER_PAYLOAD__";
+let model = null;
 
 export default class Resolver extends React.Component {
   static childContextTypes = {
     resolver: React.PropTypes.instanceOf(Resolver),
+    model: React.PropTypes.object.isRequired
   }
 
   static contextTypes = {
-    resolver: React.PropTypes.instanceOf(Resolver),
+    resolver: React.PropTypes.instanceOf(Resolver)
+  }
+
+  getChildContext() {
+    return {
+      resolver: this,
+      model: model
+    };
   }
 
   static defaultProps = {
@@ -35,6 +44,8 @@ export default class Resolver extends React.Component {
   }
 
   static render = function(render, node, data = window[PAYLOAD]) {
+    model = data;
+
     ReactDOM.render((
       <Resolver data={data}>
         {render}
@@ -46,6 +57,7 @@ export default class Resolver extends React.Component {
 
   static resolve = function(render, initialData = {}) {
     const queue = [];
+    model = initialData;
 
     renderToStaticMarkup(
       <Resolver data={initialData} onResolve={(promise) => queue.push(promise)}>
@@ -64,6 +76,7 @@ export default class Resolver extends React.Component {
 
       class Resolved extends React.Component {
         static displayName = "Resolved"
+
 
         render() {
           return (
@@ -148,7 +161,7 @@ export default class Resolver extends React.Component {
       // Ignore existing supplied props or existing resolved values
       if (!props.hasOwnProperty(name) && !nextState.resolved.hasOwnProperty(name)) {
         const factory = resolve[name];
-        const value = factory(props);
+        const value = factory(Object.assign({}, props, { model }));
         const isPromise = (
           value instanceof Promise
           ||
@@ -189,10 +202,6 @@ export default class Resolver extends React.Component {
     }
 
     return id;
-  }
-
-  getChildContext() {
-    return { resolver: this };
   }
 
   isPending(state = this.state) {

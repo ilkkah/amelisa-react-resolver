@@ -7,8 +7,10 @@ import { Router } from "react-router";
 import routes from "./routes";
 
 ES6Promise.polyfill();
+function Model() { this.hello = 'hi'; }
 
 Resolver.render(
   () => <Router history={history} routes={routes} />,
-  document.getElementById("app")
+  document.getElementById("app"),
+  new Model()
 );

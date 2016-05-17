@@ -8,6 +8,8 @@ import Router from "react-router";
 
 import routes from "./routes";
 
+function Model() { this.hello = 'hi'; }
+
 export default express()
   // Serve minified assets
   .use(express.static(path.join(__dirname, "../dist")))
@@ -22,8 +24,10 @@ export default express()
         return res.status(500).send(error);
       }
 
+      let model = new Model()
+
       Resolver
-        .resolve(() => <Router {...state} />)
+        .resolve(() => <Router {...state} />, model)
         .then(({ Resolved, data }) => {
           res
             .status(200)
